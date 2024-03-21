@@ -22,7 +22,7 @@ class UserType extends GraphQLType
         return [
             'id' => [
                 'name' => 'id',
-                'type' => Type::nonNull(Type::int()),
+                'type' => Type::int(),
                 'description' => 'O ID do usuário dentro do banco de dados'
             ],
             'name' => [                
@@ -33,18 +33,18 @@ class UserType extends GraphQLType
                 'type' => Type::nonNull(Type::string()),
                 'description' => 'O e-mail do usuário'
             ],
-            'password' => [                
-                'type' => Type::nonNull(Type::string()),
-                'description' => 'A senha do usuário'
-            ],
+            
             'tipo_funcionario' => [                
                 'type' => Type::nonNull(Type::string()),
                 'description' => 'O tipo de funcionário do usuário'
             ],
-            'support' => [
+            'supports' => [
                 'type' => Type::listOf(GraphQL::type('Support')), 
                 'description' => 'Os suportes atribuídos ao usuário',
-                'selectable' => false, 
+                //'selectable' => false,
+                'resolve' => function ($root, $args) {
+                    return $root->suports;
+                }
             ],
 
         ];

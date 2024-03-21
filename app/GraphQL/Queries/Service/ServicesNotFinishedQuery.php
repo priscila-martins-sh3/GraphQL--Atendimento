@@ -12,22 +12,26 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
 use Rebing\GraphQL\Support\SelectFields;
 
-class ServicesQuery extends Query
+class ServicesNotFinishedQuery extends Query
 {
     protected $attributes = [
-        'name' => 'services',
-        'description' => 'Retorna todos os serviços'
+        'name' => 'service/ServiceNotFinished',
+        'description' => 'Retorna os serviços não finalisados do dia'
     ];
 
     public function type(): Type
-    {        
+    {
         return Type::listOf(GraphQL::type('Service'));
     }
 
     public function args(): array
     {
         return [
-
+            'data' => [
+                'name' => 'data',
+                'description' => 'Data da busca (formato: YYYY-MM-DD)',
+                'type' => Type::nonNull(Type::string()),                
+            ],
         ];
     }
 
@@ -35,9 +39,12 @@ class ServicesQuery extends Query
     {
         $select = $selectFields->getSelect();
         $with = $selectFields->getRelations();
-    
-        $services = Service::select($select)->with($with)->get();
-        
-        return $services;
+            
+        $query = Service::whereData('created_at', $args['data'] )
+            ->where('encerrado', false)
+            ->select($select)->with($with)
+            ->get();
+
+        return $query;
     }
 }

@@ -15,7 +15,7 @@ class Service extends Model
         'support_id',
         'contact_id',
         'tipo_servico',
-        'retorno',
+        'encerrado',
         'informacoes', 
     ];
 
@@ -27,11 +27,11 @@ class Service extends Model
 
     public function support()
     {
-	return $this->belongsTo(Support::class);
+	return $this->belongsTo(Support::class, 'support_id');
     }
 
     public function contact()
     {
-	return $this->belongsTo(Contact::class);
+	return $this->belongsTo(Contact::class, 'contact_id');
     }
 }

@@ -2,39 +2,45 @@
 
 declare(strict_types=1);
 
-namespace App\GraphQL\Queries\Service;
+namespace App\GraphQL\Mutations\Service;
 
 use App\Models\Service;
 use Closure;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use Rebing\GraphQL\Support\Facades\GraphQL;
-use Rebing\GraphQL\Support\Query;
+use Rebing\GraphQL\Support\Mutation;
 use Rebing\GraphQL\Support\SelectFields;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class ServiceQuery extends Query
+class RestoreServiceMutation extends Mutation
 {
     public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
-    {        
+    {
+        $permisao = ['admin'];
         try {
             $this->auth = JWTAuth::parseToken()->authenticate();
         } catch (JWTException $e) {
             return false;
-        }         
+        }
+       
+        $funcionario = $this->auth->tipo_funcionario;
+      
+        if (!$this->auth || !in_array($funcionario, $permisao)) {           
+            return false;
+        }       
 
         return (bool) $this->auth;        
     }
-    
+
     protected $attributes = [
-        'name' => 'service',
-        'description' => 'Retorna um único serviço com base no ID'
+        'name' => 'service/RestoreService',
+        'description' => 'Restore de um servico'
     ];
 
     public function type(): Type
     {
-        return GraphQL::type('Service');
+        return Type::boolean();
     }
 
     public function args(): array
@@ -43,29 +49,28 @@ class ServiceQuery extends Query
             'id' => [
                 'name' => 'id',
                 'type' => Type::int(),
-                'description' => 'ID do service',
                 'rules' =>
                 [
                     'required',
-                    'exists:services,id,deleted_at,NULL'
+                    'exists:services,id'
                 ]
-            ],
+            ]
+
         ];
     }
+
     public function validationErrorMessages(array $args = []): array
     {
         return [
-            'id.exists' => 'Service não encontrado.',
+            'id.exists' => 'Serviço não encontrado',
         ];
     }
 
-    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, SelectFields $selectFields)
-    {        
-        $select = $selectFields->getSelect();
-        $with = $selectFields->getRelations();
-        
-        $service = Service::with($with)->select($select)->findOrFail($args['id']);
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
+    {
+        $service= Service::withTrashed()->findOrFail($args['id']);
+        $service->restore();
 
-        return $service; 
+        return true;
     }
 }

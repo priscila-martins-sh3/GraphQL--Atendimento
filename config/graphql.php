@@ -76,19 +76,23 @@ return [
     'schemas' => [
         'default' => [
             'query' => [
-                
-                'contacts' => \App\GraphQl\Queries\Contact\ContactsQuery::class,
-                'contact' => \App\GraphQl\Queries\Contact\ContactQuery::class,
+                //Contact
+                'contacts' => \App\GraphQL\Queries\Contact\ContactsQuery::class,
+                'contact' => \App\GraphQL\Queries\Contact\ContactQuery::class,
+                //Services
+                'services' => \App\GraphQL\Queries\Service\ServicesQuery::class,
+                'service' => \App\GraphQL\Queries\Service\ServiceQuery::class,
             ],
             'mutation' => [
-                
-                'createContact' => \App\GraphQl\Mutations\Contact\CreateContactMutation::class,
-                'updateContact' => \App\GraphQl\Mutations\Contact\UpdateContactMutation::class,
-                'deleteContact' => \App\GraphQl\Mutations\Contact\DeleteContactMutation::class,
-                'restoreContact' => \App\GraphQl\Mutations\Contact\RestoreContactMutation::class,
-                'register' => \App\GraphQl\Mutations\User\RegisterMutation::class,
-                'login' => \App\GraphQl\Mutations\User\AuthenticateMutation::class,
-                'logout' => \App\GraphQl\Mutations\User\LogoutMutation::class,
+                //Contact
+                'createContact' => \App\GraphQL\Mutations\Contact\CreateContactMutation::class,
+                'updateContact' => \App\GraphQL\Mutations\Contact\UpdateContactMutation::class,
+                'deleteContact' => \App\GraphQL\Mutations\Contact\DeleteContactMutation::class,
+                'restoreContact' => \App\GraphQL\Mutations\Contact\RestoreContactMutation::class,
+
+                'register' => \App\GraphQL\Mutations\User\RegisterMutation::class,
+                'login' => \App\GraphQL\Mutations\User\AuthenticateMutation::class,
+                'logout' => \App\GraphQL\Mutations\User\LogoutMutation::class,
             ],
             // The types only available in this schema
             'types' => [

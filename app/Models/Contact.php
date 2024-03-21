@@ -16,8 +16,8 @@ class Contact extends Model
         'area_atendimento',            
     ];
    
-    public function service()
+    public function services()
     {
-	return $this->hasMany(Service::class);
+	return $this->hasMany(Service::class, 'contact_id');
     }
 }

@@ -21,7 +21,7 @@ class SupportType extends GraphQLType
     {
         return [
             'id' => [
-                'type' => Type::nonNull(Type::int()),
+                'type' => Type::int(),
                 'description' => 'O ID do suporte dentro do banco de dados',
             ],
             'area_atuacao' => [
@@ -39,14 +39,16 @@ class SupportType extends GraphQLType
             'user' => [
                 'type' => GraphQL::type('User'), 
                 'description' => 'O usuário associado ao suporte',
-                'resolve' => function ($root) {
+                'resolve' => function ($root, $args) {
                     return $root->user;
                 },
             ],  
-            'service' => [
+            'services' => [
                 'type' => Type::listOf(GraphQL::type('Service')), 
                 'description' => 'Os serviços atribuídos ao suporte',
-                'selectable' => false, 
+                'resolve' => function ($root, $args) {
+                    return $root->services;
+                }
             ],
 
         ];

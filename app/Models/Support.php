@@ -19,11 +19,11 @@ class Support extends Model
     
     public function user()
     {
-	return $this->belongsTo(User::class);
+	return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function service()
+    public function services()
     {
-	return $this->hasMany(Service::class);
+	return $this->hasMany(Service::class, 'support_id');
     }
 }

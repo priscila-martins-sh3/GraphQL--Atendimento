@@ -16,16 +16,16 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class ContactsQuery extends Query
 {
-     /*public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
-    {
-        try{
+    public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
+    {        
+        try {
             $this->auth = JWTAuth::parseToken()->authenticate();
-        } catch(JWTException $e){
+        } catch (JWTException $e) {
             return false;
-        }
-        return (bool) $this->auth;
+        }         
+        return (bool) $this->auth;        
     }
-    */
+
     protected $attributes = [
         'name' => 'contacts',
         'description' => 'Retorna todos os contatos'
@@ -43,9 +43,12 @@ class ContactsQuery extends Query
         ];
     }
 
-    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, SelectFields $selectFields)
     {
-        $contacts = Contact::all();
+        $select = $selectFields->getSelect();
+        $with = $selectFields->getRelations();
+    
+        $contacts = Contact::select($select)->with($with)->get();
         
         return $contacts;
     }

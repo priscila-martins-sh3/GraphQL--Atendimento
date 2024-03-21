@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\GraphQL\Mutations\Contact;
+namespace App\GraphQL\Mutations\Service;
 
+use App\GraphQL\Validations\ServiceValidation;
+use App\Models\Service;
 use Closure;
-use App\Models\Contact;
-use App\GraphQL\Validations\ContactValidation;
-use Illuminate\Validation\ValidationException;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Validation\ValidationException;
+use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Mutation;
 use Rebing\GraphQL\Support\SelectFields;
-use Rebing\GraphQL\Support\Facades\GraphQL;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
-class CreateContactMutation extends Mutation
+class CreateServiceMutation extends Mutation
 {
     public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
     {
@@ -37,36 +37,40 @@ class CreateContactMutation extends Mutation
     }
 
     protected $attributes = [
-        'name' => 'createContact',
-        'description' => 'Cria um novo contato'
+        'name' => 'service/CreateService',
+        'description' => 'Cria um novo serviço '
     ];
 
     public function type(): Type
     {
-        return GraphQL::type('Contact');
+        return GraphQL::type('Service');
     }
 
     public function args(): array
     {
         return [
-            'nome_pessoa' => [
+            'tipo_servico' => [
                 'type' => Type::nonNull(Type::string()),
-                'description' => 'O nome da pessoa do contato',
+                'description' => 'O tipo de serviço que quer atendimento',
+            ],                        
+            'informacoes' => [
+                'type' => Type::string(),
+                'description' => 'Informações adicionais do serviço',
             ],
-            'nome_cliente' => [
-                'type' => Type::nonNull(Type::string()),
-                'description' => 'O nome do cliente do contato',
+            'support_id' => [
+                'type' => Type::int(),
+                'description' => 'O ID do suporte associado ao serviço',
             ],
-            'area_atendimento' => [
-                'type' => Type::nonNull(Type::string()),
-                'description' => 'A área de atendimento do contato',
+            'contact_id' => [
+                'type' => Type::nonNull(Type::int()),
+                'description' => 'O ID do contato associado ao serviço',
             ],
         ];
     }
 
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
     {
-        $validator = ContactValidation::make($args);
+        $validator = ServiceValidation::make($args);
 
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
@@ -74,10 +78,10 @@ class CreateContactMutation extends Mutation
             throw ValidationException::withMessages($errors);
         }
 
-        $contact = new Contact();
-        $contact->fill($args);
-        $contact->save();
+        $service = new Service();
+        $service->fill($args);
+        $service->save();
 
-        return $contact;
+        return $service;
     }
 }

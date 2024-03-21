@@ -2,25 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\GraphQL\Mutations\Contact;
+namespace App\GraphQL\Mutations\Service;
 
+use App\GraphQL\Validations\ServiceValidation;
+use App\Models\Service;
 use Closure;
-use App\Models\Contact;
-use App\GraphQL\Validations\ContactValidation;
-use Illuminate\Validation\ValidationException;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use Illuminate\Validation\ValidationException;
+use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Mutation;
 use Rebing\GraphQL\Support\SelectFields;
-use Rebing\GraphQL\Support\Facades\GraphQL;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class UpdateContactMutation extends Mutation
+class UpdateServiceMutation extends Mutation
 {
     public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
     {
-        $permisao = ['admin'];
+        $permisao = ['admin', 'recepcionista', 'suporte' ];
         try {
             $this->auth = JWTAuth::parseToken()->authenticate();
         } catch (JWTException $e) {
@@ -37,13 +37,13 @@ class UpdateContactMutation extends Mutation
     }
 
     protected $attributes = [
-        'name' => 'updateContact',
-        'description' => 'Atualiza um contato'
+        'name' => 'service/UpdateService',
+        'description' => 'Atualiza um serviço'
     ];
 
     public function type(): Type
     {
-        return GraphQL::type('Contact');
+        return GraphQL::type('Service');
     }
 
     public function args(): array
@@ -52,36 +52,43 @@ class UpdateContactMutation extends Mutation
             'id' => [
                 'name' => 'id',
                 'type' => Type::int(),
-                'rules' => ['required', 'exists:contacts,id,deleted_at,NULL'],
+                'rules' => ['required', 'exists:services,id,deleted_at,NULL'],
             ],
-            'nome_pessoa' => [
+            'tipo_servico' => [
+                'type' => Type::nonNull(Type::string()),
+                'description' => 'O tipo de serviço ',
+            ],            
+            'encerrado' => [
+                'type' => Type::boolean(),
+                'description' => 'Se o serviço foi finalizado ou não',
+            ],
+            'informacoes' => [
                 'type' => Type::string(),
-                'description' => 'O nome da pessoa do contato',
+                'description' => 'Informações adicionais do serviço',
             ],
-            'nome_cliente' => [
-                'type' => Type::string(),
-                'description' => 'O nome do cliente do contato',
+            'support_id' => [
+                'type' => Type::int(),
+                'description' => 'O ID do suporte associado ao serviço',
             ],
-            'area_atendimento' => [
-                'type' => Type::string(),
-                'description' => 'A área de atendimento do contato',
+            'contact_id' => [
+                'type' => Type::nonNull(Type::int()),
+                'description' => 'O ID do contato associado ao serviço',
             ],
-
         ];
     }
 
     public function validationErrorMessages(array $args = []): array
     {
         return [
-            'id.exists' => 'Contato não encontrado.',
+            'id.exists' => 'Serviço não encontrado.',
         ];
     }
 
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
     {
-        $contact = Contact::findorFail($args['id']);
+        $service = Service::findorFail($args['id']);
         
-        $validator = ContactValidation::make($args);
+        $validator = ServiceValidation::make($args);
 
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
@@ -89,9 +96,9 @@ class UpdateContactMutation extends Mutation
             throw ValidationException::withMessages($errors);
         }
         
-        $contact->update($args);
-        $contact = $contact->fresh();
+        $service->update($args);
+        $service = $service->fresh();
 
-        return $contact;
+        return $service;
     }
 }

@@ -2,18 +2,21 @@
 
 namespace App\GraphQL\Validations;
 
+use App\Models\Service;
 use Illuminate\Support\Facades\Validator;
 
-class ContactValidation
+class ServiceValidation
 {
     public static function make(array $data)
     {
         $id = isset($data['id']) ? $data['id'] : null;
 
         $rules = [
-            'nome_pessoa' => ['required', 'string', 'max:150'],
-            'nome_cliente' => ['required', 'string', 'max:150'],
-            'area_atendimento' => ['required', 'string', 'max:150'],
+            'tipo_servico'=>['required', 'in:' . Service::tiposValidosServico()],                    
+            'encerramento' => ['boolean'],
+            'informacoes' => ['nullable'],    
+            'support_id' => ['nullable', 'integer', 'exists:supports,id,deleted_at,NULL' ],  
+            'contact_id' => ['required', 'integer', 'exists:contacts,id,deleted_at,NULL'], 
         ];
 
         if (!is_null($id)) {

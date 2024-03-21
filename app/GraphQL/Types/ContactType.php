@@ -21,7 +21,7 @@ class ContactType extends GraphQLType
     {
         return [
             'id' => [                
-                'type' => Type::nonNull(Type::int()),
+                'type' => Type::int(),
                 'description' => 'O ID do contato dentro do banco de dados'
             ],
             'nome_pessoa' => [
@@ -36,10 +36,12 @@ class ContactType extends GraphQLType
                 'type' => Type::nonNull(Type::string()),
                 'description' => 'A área de atendimento do contato',
             ],
-            'service' => [
+            'services' => [
                 'type' => Type::listOf(GraphQL::type('Service')), 
                 'description' => 'Os serviços atribuídos ao contato',
-                'selectable' => false, 
+                'resolve' => function ($root, $args) {
+                    return $root->services;
+                }
             ],
 
         ];

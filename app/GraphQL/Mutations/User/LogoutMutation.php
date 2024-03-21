@@ -9,17 +9,29 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Mutation;
 use Rebing\GraphQL\Support\SelectFields;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LogoutMutation extends Mutation
 {
+    public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
+    {
+        try {
+            $this->auth = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {
+            return false;
+        }
+        return (bool) $this->auth;
+    }
+
     protected $attributes = [
         'name' => 'logout',
-        'description' => 'A mutation'
+        'description' => 'Logout do usuário no sistema'
     ];
 
     public function type(): Type
     {
-        return Type::listOf(Type::string());
+        return Type::nonNull(Type::string());
     }
 
     public function args(): array
@@ -31,10 +43,8 @@ class LogoutMutation extends Mutation
 
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
     {
-        $fields = $getSelectFields();
-        $select = $fields->getSelect();
-        $with = $fields->getRelations();
+        JWTAuth::parseToken()->invalidate();
 
-        return [];
+        return 'O usuário foi desconectado.';
     }
 }

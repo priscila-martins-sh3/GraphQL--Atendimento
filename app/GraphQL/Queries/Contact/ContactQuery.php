@@ -17,16 +17,16 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class ContactQuery extends Query
 {   
-    /*public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
-    {
-        try{
+    public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
+    {        
+        try {
             $this->auth = JWTAuth::parseToken()->authenticate();
-        } catch(JWTException $e){
+        } catch (JWTException $e) {
             return false;
-        }
-        return (bool) $this->auth;
+        }    
+        return (bool) $this->auth;        
     }
-    */
+
     protected $attributes = [
         'name' => 'contact',
         'description' => 'Retorna um único contato com base no ID'
@@ -59,9 +59,12 @@ class ContactQuery extends Query
         ];
     }
 
-    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
+    public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, SelectFields $selectFields)
     {        
-        $contact = Contact::findOrFail($args['id']);
+        $select = $selectFields->getSelect();
+        $with = $selectFields->getRelations();
+        
+        $contact = Contact::with($with)->select($select)->findOrFail($args['id']);
 
         return $contact; 
     }

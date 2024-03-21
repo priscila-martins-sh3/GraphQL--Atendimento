@@ -21,16 +21,17 @@ class ServiceType extends GraphQLType
     {
         return [
             'id' => [
-                'type' => Type::nonNull(Type::int()),
+                'type' => Type::int(),
                 'description' => 'O ID do serviço dentro do banco de dados',
             ],            
             'tipo_servico' => [
                 'type' => Type::nonNull(Type::string()),
                 'description' => 'O tipo de serviço ',
-            ],
-            'retorno' => [
-                'type' => Type::nonNull(Type::boolean()),
-                'description' => 'Se o serviço precisa de retorno ou não',
+            ],           
+            'encerrado' => [
+                'type' => Type::boolean(),
+                'default' => false,
+                'description' => 'Se o serviço foi finalizado ou não',
             ],
             'informacoes' => [
                 'type' => Type::string(),
@@ -47,14 +48,14 @@ class ServiceType extends GraphQLType
             'support' => [
                 'type' => GraphQL::type('Support'), 
                 'description' => 'O suporte associado ao serviço',
-                'resolve' => function ($root) {
+                'resolve' => function ($root, $args) {
                     return $root->support;
                 },
             ],  
             'contact' => [
                 'type' => GraphQL::type('Contact'), 
                 'description' => 'O contato associado ao serviço',
-                'resolve' => function ($root) {
+                'resolve' => function ($root, $args) {
                     return $root->contact;
                 },
             ],              

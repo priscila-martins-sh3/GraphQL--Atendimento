@@ -2,19 +2,24 @@
 
 namespace App\GraphQL\Validations;
 
+use App\Models\Support;
+use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use PhpParser\Node\NullableType;
 
-class ContactValidation
+class UserValidation
 {
     public static function make(array $data)
     {
         $id = isset($data['id']) ? $data['id'] : null;
 
         $rules = [
-            'nome_pessoa' => ['required', 'string', 'max:150'],
-            'nome_cliente' => ['required', 'string', 'max:150'],
-            'area_atendimento' => ['required', 'string', 'max:150'],
-        ];
+            'name' => ['required'],
+            'email' => ['required', 'email', 'unique:users'],
+            'password' => ['required', 'min:6'],
+            'tipo_funcionario' => ['required', 'in:' .  User::tiposValidos()],
+            'area_atuacao' => [$data['tipo_funcionario'] === 'suporte' ? 'required' : 'nullable'],       
+        ];      
 
         if (!is_null($id)) {
             $adaptativeRules = [];
@@ -32,8 +37,9 @@ class ContactValidation
 
         if ($validator->fails()) {
             return $validator;
-        }
+        }           
 
         return $validator;
     }
 }
+
