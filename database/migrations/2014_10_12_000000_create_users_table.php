@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('tipo_funcionario');
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes(); 
         });
     }
 

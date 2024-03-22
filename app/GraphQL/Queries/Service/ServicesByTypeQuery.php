@@ -46,7 +46,7 @@ class ServicesByTypeQuery extends Query
         $select = $selectFields->getSelect();
         $with = $selectFields->getRelations();
             
-        $query = Service::whereData('created_at', $args['data'] )
+        $query = Service::whereDate('created_at', $args['data'] )
             ->where('tipo_servico', $args['tipo_servico'])
             ->select($select)->with($with)
             ->get();

@@ -82,17 +82,29 @@ return [
                 //Services
                 'services' => \App\GraphQL\Queries\Service\ServicesQuery::class,
                 'service' => \App\GraphQL\Queries\Service\ServiceQuery::class,
+                'client' => \App\GraphQL\Queries\Service\ServicesByClientQuery::class,
+                'support' => \App\GraphQL\Queries\Service\ServicesBySupportsQuery::class,
+                'area' => \App\GraphQL\Queries\Service\ServicesByAreaQuery::class,
+                'type' => \App\GraphQL\Queries\Service\ServicesByTypeQuery::class,
+                'notFinished' => \App\GraphQL\Queries\Service\ServicesNotFinishedQuery::class,
             ],
             'mutation' => [
+                //User
+                'register' => \App\GraphQL\Mutations\User\RegisterMutation::class,
+                'login' => \App\GraphQL\Mutations\User\AuthenticateMutation::class,
+                'logout' => \App\GraphQL\Mutations\User\LogoutMutation::class,
                 //Contact
                 'createContact' => \App\GraphQL\Mutations\Contact\CreateContactMutation::class,
                 'updateContact' => \App\GraphQL\Mutations\Contact\UpdateContactMutation::class,
                 'deleteContact' => \App\GraphQL\Mutations\Contact\DeleteContactMutation::class,
                 'restoreContact' => \App\GraphQL\Mutations\Contact\RestoreContactMutation::class,
-
-                'register' => \App\GraphQL\Mutations\User\RegisterMutation::class,
-                'login' => \App\GraphQL\Mutations\User\AuthenticateMutation::class,
-                'logout' => \App\GraphQL\Mutations\User\LogoutMutation::class,
+                //Service
+                'createService' => \App\GraphQL\Mutations\Service\CreateServiceMutation::class,
+                'updateService' => \App\GraphQL\Mutations\Service\UpdateServiceMutation::class,
+                'deleteService' => \App\GraphQL\Mutations\Service\DeleteServiceMutation::class,
+                'restoreService' => \App\GraphQL\Mutations\Service\RestoreServiceMutation::class,
+                'associateService' => \App\GraphQL\Mutations\Service\AssociateServiceMutation::class,
+                'finishedService' => \App\GraphQL\Mutations\Service\FinishedServiceMutation::class,
             ],
             // The types only available in this schema
             'types' => [

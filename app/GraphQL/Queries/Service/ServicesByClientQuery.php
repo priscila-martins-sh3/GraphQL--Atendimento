@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\GraphQL\Queries\Contact;
+namespace App\GraphQL\Queries\Service;
 
-use App\Models\Contact;
+use App\Models\Service;
 use Closure;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -12,16 +12,16 @@ use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
 use Rebing\GraphQL\Support\SelectFields;
 
-class ContactsByClientQuery extends Query
+class ServicesByClientQuery extends Query
 {
     protected $attributes = [
-        'name' => 'contact/ContactsByClient',
-        'description' => 'Retorna os clientes que entraram em contato do dia'
+        'name' => 'service/ServiceNotFinished',
+        'description' => 'Retorna os serviços  do dia'
     ];
 
     public function type(): Type
     {
-        return Type::listOf(GraphQL::type('Contact'));
+        return Type::listOf(GraphQL::type('Service'));
     }
 
     public function args(): array
@@ -32,16 +32,29 @@ class ContactsByClientQuery extends Query
                 'description' => 'Data da busca (formato: YYYY-MM-DD)',
                 'type' => Type::nonNull(Type::string()),                
             ],
+            'contact_id' => [
+                'name' => 'contact_id',
+                'description' => 'O ID do contato buscado',
+                'type' => Type::nonNull(Type::int()), 
+                'rules' => ['required', 'exists:contacts,id,deleted_at,NULL'],               
+            ],
         ];
     }
 
+    public function validationErrorMessages(array $args = []): array
+    {
+        return [
+            'contact_id.exists' => 'ID do contato não encontrado',
+        ];
+    }
+       
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, SelectFields $selectFields)
     {
         $select = $selectFields->getSelect();
         $with = $selectFields->getRelations();
             
-        $query = Contact::whereData('created_at', $args['data'] )
-            ->whereNotNull('nome_cliente')
+        $query = Service::whereDate('created_at', $args['data'] )
+            ->where('contact_id', $args['contact_id'])
             ->select($select)->with($with)
             ->get();
 

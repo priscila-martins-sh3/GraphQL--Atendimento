@@ -11,9 +11,13 @@ use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
 use Rebing\GraphQL\Support\SelectFields;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ServicesBySupportsQuery extends Query
 {
+   
+
     protected $attributes = [
         'name' => 'service/ServicesBySupports',
         'description' => 'Retorna os serviços do dia de acordo com o suporte'
@@ -35,8 +39,16 @@ class ServicesBySupportsQuery extends Query
             'support_id' => [
                 'name' => 'support_id',
                 'description' => 'O ID do suporte buscado',
-                'type' => Type::nonNull(Type::int()),                
+                'type' => Type::nonNull(Type::int()), 
+                'rules' => ['required', 'exists:supports,id,deleted_at,NULL'],               
             ],
+        ];
+    }
+
+    public function validationErrorMessages(array $args = []): array
+    {
+        return [
+            'service_id.exists' => 'ID do suporte não encontrado',
         ];
     }
 
@@ -45,10 +57,14 @@ class ServicesBySupportsQuery extends Query
         $select = $selectFields->getSelect();
         $with = $selectFields->getRelations();
             
-        $query = Service::whereData('created_at', $args['data'] )
+        $query = Service::whereDate('created_at', $args['data'] )
             ->where('support_id', $args['support_id'])
             ->select($select)->with($with)
             ->get();
+        
+        if ($query->isEmpty()){
+            return null;
+        }    
 
         return $query;
     }

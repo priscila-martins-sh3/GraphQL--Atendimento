@@ -11,9 +11,21 @@ use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
 use Rebing\GraphQL\Support\SelectFields;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ServicesByAreaQuery extends Query
 {
+    public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
+    {
+        try {
+            $this->auth = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {
+            return false;
+        }
+        return (bool) $this->auth;
+    }
+
     protected $attributes = [
         'name' => 'contact/ContactByArea',
         'description' => 'Retorna os serviços do dia de acordo com a área de atendimento'
@@ -35,7 +47,7 @@ class ServicesByAreaQuery extends Query
             'area_atendimento' => [
                 'name' => 'area_atendimento',
                 'description' => 'A área de atendimento buscado',
-                'type' => Type::nonNull(Type::int()),                
+                'type' => Type::nonNull(Type::string()),                
             ],
         ];
     }
@@ -47,13 +59,15 @@ class ServicesByAreaQuery extends Query
         $select = $selectFields->getSelect();
         $with = $selectFields->getRelations();
             
-        $query = Service::whereData('created_at', $args['data'] )
-        ->whereHas('contact', function ($query) use ($areaAtendimento) {
-            $query->where('area_atendimento', $areaAtendimento);
-        })
+        $query = Service:: whereDate('services.created_at', $args['data'] )
+            ->join('contacts', 'services.contact_id', '=', 'contacts.id')
+            ->where('contacts.area_atendimento', $areaAtendimento)            
             ->select($select)->with($with)
             ->get();         
 
         return $query;
     }
 }
+
+
+        

@@ -18,24 +18,8 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AssociateServiceMutation extends Mutation
 {
-    public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
-    {
-        $permisao = ['admin', 'recepcionista', 'suporte' ];
-        try {
-            $this->auth = JWTAuth::parseToken()->authenticate();
-        } catch (JWTException $e) {
-            return false;
-        }
-       
-        $funcionario = $this->auth->tipo_funcionario;
-      
-        if (!$this->auth || !in_array($funcionario, $permisao)) {           
-            return false;
-        }       
 
-        return (bool) $this->auth;        
-    }
-    
+
     protected $attributes = [
         'name' => 'service/AssociateService',
         'description' => 'Associação de um suporte ao serviço'
@@ -67,22 +51,25 @@ class AssociateServiceMutation extends Mutation
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
     {
         $serviceId = $args['service_id'];
-        $service = Service::findOrFail($serviceId);       
+        $service = Service::findOrFail($serviceId);
         $contact = $service->contact;
-                
+
         $support = Support::where('area_atuacao', $contact->area_atendimento)
-                          ->where('livre', true)
-                          ->first();
-    
-        if (!$support) {          
-            return ['error' => 'Nenhum suporte disponível na mesma área'];
+            ->where('livre', true)
+            ->first();
+
+        if ($support === null) {
+            throw new \Exception('Não existe suporte livre para a área de atendimento.');
         }
 
-        $service->update(['support_id' => $support->id]); 
-       
-        $support->livre = false;
-        $support->save();
+        if ($service->support_id === null) {
+            $service->update(['support_id' => $support->id]);
 
+            $support->livre = false;
+            $support->save();
+        } else {
+            throw new \Exception('Serviço já tem suporte.');
+        }
         return $service;
     }
 }

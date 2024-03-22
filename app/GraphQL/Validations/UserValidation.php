@@ -2,10 +2,8 @@
 
 namespace App\GraphQL\Validations;
 
-use App\Models\Support;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
-use PhpParser\Node\NullableType;
 
 class UserValidation
 {
