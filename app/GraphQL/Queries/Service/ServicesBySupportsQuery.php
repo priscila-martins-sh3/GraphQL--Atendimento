@@ -16,7 +16,15 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ServicesBySupportsQuery extends Query
 {
-   
+    public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
+    {
+        try {
+            $this->auth = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {
+            return false;
+        }
+        return (bool) $this->auth;
+    }
 
     protected $attributes = [
         'name' => 'service/ServicesBySupports',

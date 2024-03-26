@@ -32,8 +32,7 @@ class UserType extends GraphQLType
             'email' => [                
                 'type' => Type::nonNull(Type::string()),
                 'description' => 'O e-mail do usuário'
-            ],
-            
+            ],            
             'tipo_funcionario' => [                
                 'type' => Type::nonNull(Type::string()),
                 'description' => 'O tipo de funcionário do usuário'

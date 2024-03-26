@@ -48,7 +48,7 @@ class RegisterMutation extends Mutation
             ],
             'area_atuacao' => [
                 'name' => 'area_atuacao',
-                'type' => Type::string(), 
+                'type' => Type::listOf(Type::string()), 
             ]            
         ];
     }
@@ -70,16 +70,18 @@ class RegisterMutation extends Mutation
             'tipo_funcionario' => $args['tipo_funcionario'],
         ]);
         
-        if ($args['tipo_funcionario'] === 'suporte') {
-            Support::create([
-                'area_atuacao' => $args['area_atuacao'],                
-                'user_id' => $user->id,
-                'livre' => true,
-            ]);
+        
+        if ($args['tipo_funcionario'] === 'suporte' && !empty(array_filter($args['area_atuacao']))) {
+            foreach ($args['area_atuacao'] as $area) {
+                Support::create([
+                    'area_atuacao' => $area,
+                    'user_id' => $user->id,
+                    'livre' => true,
+                ]);
+            }
         }
 
         return $user;
     }
 
 }
-

@@ -22,14 +22,11 @@ class DeleteContactMutation extends Mutation
             $this->auth = JWTAuth::parseToken()->authenticate();
         } catch (JWTException $e) {
             return false;
-        }
-       
-        $funcionario = $this->auth->tipo_funcionario;
-      
+        }       
+        $funcionario = $this->auth->tipo_funcionario;      
         if (!$this->auth || !in_array($funcionario, $permisao)) {           
             return false;
-        }       
-
+        }  
         return (bool) $this->auth;        
     }
     

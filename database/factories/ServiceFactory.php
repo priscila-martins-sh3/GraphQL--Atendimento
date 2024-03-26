@@ -24,7 +24,7 @@ class ServiceFactory extends Factory
                 return Contact::factory()->create()->id;
             },
             'tipo_servico' =>fake()->randomElement(['tirar_duvida', 'informar_problema', 'solicitar_recurso']),       
-            'retorno' => true,
+            'encerrado' => false,
             'informacoes'=> null,
         ];
     }

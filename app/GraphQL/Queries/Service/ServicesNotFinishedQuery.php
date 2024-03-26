@@ -11,9 +11,21 @@ use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Query;
 use Rebing\GraphQL\Support\SelectFields;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ServicesNotFinishedQuery extends Query
 {
+    public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
+    {
+        try {
+            $this->auth = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {
+            return false;
+        }
+        return (bool) $this->auth;
+    }
+
     protected $attributes = [
         'name' => 'service/ServiceNotFinished',
         'description' => 'Retorna os serviços não finalisados do dia'
@@ -30,7 +42,7 @@ class ServicesNotFinishedQuery extends Query
             'data' => [
                 'name' => 'data',
                 'description' => 'Data da busca (formato: YYYY-MM-DD)',
-                'type' => Type::nonNull(Type::string()),                
+                'type' => Type::nonNull(Type::string()),
             ],
         ];
     }
@@ -39,8 +51,8 @@ class ServicesNotFinishedQuery extends Query
     {
         $select = $selectFields->getSelect();
         $with = $selectFields->getRelations();
-            
-        $query = Service::whereDate('created_at', $args['data'] )
+
+        $query = Service::whereDate('created_at', $args['data'])
             ->where('encerrado', false)
             ->select($select)->with($with)
             ->get();

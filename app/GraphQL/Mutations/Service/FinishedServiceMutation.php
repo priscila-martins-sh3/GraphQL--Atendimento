@@ -71,18 +71,20 @@ class FinishedServiceMutation extends Mutation
         $supports = $user->supports;
 
         $sameSupport = $supports->first(function ($support) use ($service) {
-            return $support->id === $service->support_id; 
+            return $support->id === $service->support_id;
         });
 
         if ($sameSupport && $service->encerrado == false) {
             $service->update(['encerrado' => true]);
+
+            foreach ($supports as $support) {               
+                    $support->livre = true;
+                    $support->save();                   
+            }
         } else {
-            throw new \Exception("Não é possível finalizar o serviço");
+            throw new \Exception("Não é possível finalizar o serviço.");
         }
-
-        $supports->livre = true;
-        $supports->save();
-
+        
         return $service;
     }
 }

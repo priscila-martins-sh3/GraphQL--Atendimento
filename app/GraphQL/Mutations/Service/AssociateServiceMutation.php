@@ -18,7 +18,20 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AssociateServiceMutation extends Mutation
 {
-
+    public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
+    {
+        $permisao = ['admin', 'recepcionista'];
+        try {
+            $this->auth = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {
+            return false;
+        }       
+        $funcionario = $this->auth->tipo_funcionario;      
+        if (!$this->auth || !in_array($funcionario, $permisao)) {           
+            return false;
+        }  
+        return (bool) $this->auth;        
+    }
 
     protected $attributes = [
         'name' => 'service/AssociateService',
@@ -65,11 +78,16 @@ class AssociateServiceMutation extends Mutation
         if ($service->support_id === null) {
             $service->update(['support_id' => $support->id]);
 
-            $support->livre = false;
-            $support->save();
+            $supports = $support->user->supports;
+            foreach ($supports as $support) {               
+                $support->livre = false;                
+                $support->save();                   
+        }
+            
         } else {
             throw new \Exception('Serviço já tem suporte.');
         }
         return $service;
     }
-}
+} 
+    

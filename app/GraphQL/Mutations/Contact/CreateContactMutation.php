@@ -18,7 +18,20 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class CreateContactMutation extends Mutation
 {
-    
+    public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
+    {
+        $permisao = ['admin', 'recepcionista'];
+        try {
+            $this->auth = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {
+            return false;
+        }       
+        $funcionario = $this->auth->tipo_funcionario;      
+        if (!$this->auth || !in_array($funcionario, $permisao)) {           
+            return false;
+        }  
+        return (bool) $this->auth;        
+    }
 
     protected $attributes = [
         'name' => 'createContact',

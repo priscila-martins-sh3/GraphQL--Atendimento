@@ -76,6 +76,8 @@ return [
     'schemas' => [
         'default' => [
             'query' => [
+                //user
+                'users' => \App\GraphQL\Queries\User\UsersQuery::class,
                 //Contact
                 'contacts' => \App\GraphQL\Queries\Contact\ContactsQuery::class,
                 'contact' => \App\GraphQL\Queries\Contact\ContactQuery::class,
@@ -107,8 +109,7 @@ return [
                 'finishedService' => \App\GraphQL\Mutations\Service\FinishedServiceMutation::class,
             ],
             // The types only available in this schema
-            'types' => [
-                
+            'types' => [                
                 'User' => \App\GraphQL\Types\UserType::class,
                 'Support' => \App\GraphQL\Types\SupportType::class,        
                 'Contact' => \App\GraphQL\Types\ContactType::class,

@@ -7,18 +7,22 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use Tymon\JWTAuth\Facades\JWTAuth;
+
 
 class ContactTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
 
+    
     public function test_query_contact()
     {
+        $user = User::factory()->create(['tipo_funcionario' => 'admin']);
+        
+        $token = auth()->login($user);
         $contact = Contact::factory()->create();
-
-        $this->query('contact', ['id' => $contact->id], ['id'])
+        $this->withHeaders(["Authorization" => "Bearer {$token}"])
+            ->query('contact', ['id' => $contact->id], ['id'])
             ->assertJsonFragment([
                 'data' => [
                     'contact' => [
@@ -30,7 +34,10 @@ class ContactTest extends TestCase
 
     public function test_query_contact_if_object_not_found()
     {
-        $this->query('contact', ['id' => 0], ['id'])
+        $user = User::factory()->create(['tipo_funcionario' => 'admin']);
+        $token = auth()->login($user);
+        $this->withHeaders(["Authorization" => "Bearer {$token}"])
+            ->query('contact', ['id' => 0], ['id'])
             ->assertJsonFragment([
                 'message' => 'validation',
             ]);
@@ -38,13 +45,15 @@ class ContactTest extends TestCase
 
     public function test_query_contacts()
     {
-        $contacts = Contact::factory()->create();
-
-        $this->query('contacts', ['id'])
+        $user = User::factory()->create(['tipo_funcionario' => 'admin']);
+        $token = auth()->login($user);
+        $contact = Contact::factory()->create();
+        $this->withHeaders(["Authorization" => "Bearer {$token}"])
+            ->query('contacts', ['id'])
             ->assertJsonFragment([
                 'data' => [
                     'contacts' => [
-                        ['id' => $contacts->id]
+                        ['id' => $contact->id]
                     ],
                 ],
             ]);
@@ -55,7 +64,6 @@ class ContactTest extends TestCase
     {
         $user = User::factory()->create(['tipo_funcionario' => 'admin']);
         $token = auth()->login($user);
-        
         $contact = [
             'nome_pessoa' => 'Maria',
             'nome_cliente' => 'Empresa',
@@ -88,11 +96,11 @@ class ContactTest extends TestCase
             'area_atendimento' => 'contabilidade'
         ];
         $this->withHeaders(["Authorization" => "Bearer {$token}"])
-        ->mutation('createContact', [
-            'nome_pessoa' => $contact['nome_pessoa'],
-            'nome_cliente' => $contact['nome_cliente'],
-            'area_atendimento' => $contact['area_atendimento'],
-        ], ['nome_pessoa', 'nome_cliente', 'area_atendimento'])
+            ->mutation('createContact', [
+                'nome_pessoa' => $contact['nome_pessoa'],
+                'nome_cliente' => $contact['nome_cliente'],
+                'area_atendimento' => $contact['area_atendimento'],
+            ], ['nome_pessoa', 'nome_cliente', 'area_atendimento'])
             ->assertJsonFragment([
                 'message' => 'validation',
             ]);
@@ -100,9 +108,11 @@ class ContactTest extends TestCase
 
     public function test_update()
     {
+        $user = User::factory()->create(['tipo_funcionario' => 'admin']);
+        $token = auth()->login($user);
         $contact = Contact::factory()->create();
-
-        $this->mutation('updateContact', ['id' => $contact->id], ['id'])
+        $this->withHeaders(["Authorization" => "Bearer {$token}"])
+            ->mutation('updateContact', ['id' => $contact->id], ['id'])
             ->assertJsonFragment([
                 'data' => [
                     'updateContact' => [
@@ -114,9 +124,10 @@ class ContactTest extends TestCase
 
     public function test_update_with_failed_validation()
     {
-        $contact = Contact::factory()->create();
-
-        $this->mutation('updateContact', ['id' => 0], ['id'])
+        $user = User::factory()->create(['tipo_funcionario' => 'admin']);
+        $token = auth()->login($user);
+        $this->withHeaders(["Authorization" => "Bearer {$token}"])
+            ->mutation('updateContact', ['id' => 0], ['id'])
             ->assertJsonFragment([
                 'message' => 'validation'
             ]);
@@ -124,9 +135,10 @@ class ContactTest extends TestCase
 
     public function test_update_if_object_not_found()
     {
-        $contact = Contact::factory()->create();
-
-        $this->mutation('updateContact', ['id' => 0], ['id'])
+        $user = User::factory()->create(['tipo_funcionario' => 'admin']);
+        $token = auth()->login($user);
+        $this->withHeaders(["Authorization" => "Bearer {$token}"])
+            ->mutation('updateContact', ['id' => 0], ['id'])
             ->assertJsonFragment([
                 'message' => 'validation'
             ]);
@@ -134,8 +146,11 @@ class ContactTest extends TestCase
 
     public function test_destroy()
     {
+        $user = User::factory()->create(['tipo_funcionario' => 'admin']);
+        $token = auth()->login($user);
         $contact = Contact::factory()->create();
-        $this->mutation('deleteContact', ['id' => $contact->id], [])
+        $this->withHeaders(["Authorization" => "Bearer {$token}"])
+            ->mutation('deleteContact', ['id' => $contact->id], [])
             ->assertJsonFragment([
                 'deleteContact' => true
             ]);
@@ -143,9 +158,11 @@ class ContactTest extends TestCase
 
     public function test_destroy_if_object_not_found()
     {
-        $contact = Contact::factory()->create();
+        $user = User::factory()->create(['tipo_funcionario' => 'admin']);
+        $token = auth()->login($user);
 
-        $this->mutation('deleteContact', ['id' => 0], [])
+        $this->withHeaders(["Authorization" => "Bearer {$token}"])
+            ->mutation('deleteContact', ['id' => 0], [])
             ->assertJsonFragment([
                 'message' => 'validation'
             ]);
@@ -153,8 +170,11 @@ class ContactTest extends TestCase
 
     public function test_restore()
     {
+        $user = User::factory()->create(['tipo_funcionario' => 'admin']);
+        $token = auth()->login($user);
         $contact = Contact::factory()->create();
-        $this->mutation('restoreContact', ['id' => $contact->id], [])
+        $this->withHeaders(["Authorization" => "Bearer {$token}"])
+            ->mutation('restoreContact', ['id' => $contact->id], [])
             ->assertJsonFragment([
                 'restoreContact' => true
             ]);
@@ -162,11 +182,13 @@ class ContactTest extends TestCase
 
     public function test_restore_if_object_not_found()
     {
-        $contact = Contact::factory()->create();
-
-        $this->mutation('restoreContact', ['id' => 0], [])
+        $user = User::factory()->create(['tipo_funcionario' => 'admin']);
+        $token = auth()->login($user);
+        $this->withHeaders(["Authorization" => "Bearer {$token}"])
+            ->mutation('restoreContact', ['id' => 0], [])
             ->assertJsonFragment([
                 'message' => 'validation'
             ]);
     }
+    
 }

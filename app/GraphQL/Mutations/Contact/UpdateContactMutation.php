@@ -20,7 +20,7 @@ class UpdateContactMutation extends Mutation
 {
     public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
     {
-        $permisao = ['admin'];
+        $permisao = ['admin', 'recepcionista'];
         try {
             $this->auth = JWTAuth::parseToken()->authenticate();
         } catch (JWTException $e) {
