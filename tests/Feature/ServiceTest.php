@@ -6,6 +6,7 @@ use App\Models\Contact;
 use App\Models\Service;
 use App\Models\Support;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -63,8 +64,9 @@ class ServiceTest extends TestCase
         $user = User::factory()->create(['tipo_funcionario' => 'admin']);
         $token = auth()->login($user);
         $service = Service::factory()->create();
+        $dataAtual = Carbon::now()->toDateString();
         $this->withHeaders(["Authorization" => "Bearer {$token}"])
-            ->query('notFinished', ['data' => '2024-03-26'], ['id'])
+            ->query('notFinished', ['data' => $dataAtual], ['id'])
             ->assertJsonFragment([
                 'data' => [
                     'notFinished' => [
@@ -79,8 +81,9 @@ class ServiceTest extends TestCase
         $user = User::factory()->create(['tipo_funcionario' => 'admin']);
         $token = auth()->login($user);
         $service = Service::factory()->create(['tipo_servico' => 'tirar_duvida']);
+        $dataAtual = Carbon::now()->toDateString();
         $this->withHeaders(["Authorization" => "Bearer {$token}"])
-            ->query('type', ['data' => '2024-03-26', 'tipo_servico' => 'tirar_duvida'], ['id'])
+            ->query('type', ['data' => $dataAtual, 'tipo_servico' => 'tirar_duvida'], ['id'])
             ->assertJsonFragment([
                 'data' => [
                     'type' => [
@@ -96,11 +99,12 @@ class ServiceTest extends TestCase
         $token = auth()->login($user);
         $support = Support::factory()->create();
         $service = Service::factory()->create(['support_id' => $support->id]);
+        $dataAtual = Carbon::now()->toDateString();
         $this->withHeaders(["Authorization" => "Bearer {$token}"])
-            ->query('type', ['data' => '2024-03-26', 'support_id' => $support->id], ['id'])
+            ->query('support', ['data' => $dataAtual, 'support_id' => $support->id], ['id'])
             ->assertJsonFragment([
                 'data' => [
-                    'type' => [
+                    'support' => [
                         ['id' => $service->id,]
                     ],
                 ],
@@ -113,8 +117,9 @@ class ServiceTest extends TestCase
         $token = auth()->login($user);
         $contact = Contact::factory()->create();
         $service = Service::factory()->create(['contact_id' => $contact->id]);
+        $dataAtual = Carbon::now()->toDateString();
         $this->withHeaders(["Authorization" => "Bearer {$token}"])
-            ->query('client', ['data' => '2024-03-26', 'contact_id' => $contact->id], ['id'])
+            ->query('client', ['data' => $dataAtual, 'contact_id' => $contact->id], ['id'])
             ->assertJsonFragment([
                 'data' => [
                     'client' => [
@@ -130,8 +135,9 @@ class ServiceTest extends TestCase
         $token = auth()->login($user);
         $contact = Contact::factory()->create(['area_atendimento' => 'compras']);
         $service = Service::factory()->create(['contact_id' => $contact->id]);
+        $dataAtual = Carbon::now()->toDateString();
         $this->withHeaders(["Authorization" => "Bearer {$token}"])
-            ->query('area', ['data' => '2024-03-26', 'area_atendimento' => 'compras'], ['id'])
+            ->query('area', ['data' => $dataAtual, 'area_atendimento' => 'compras'], ['id'])
             ->assertJsonFragment([
                 'data' => [
                     'area' => [
@@ -317,6 +323,26 @@ class ServiceTest extends TestCase
             ->mutation('associateService', ['service_id' => $service->id], ['id'])
             ->assertJsonFragment([
                 'debugMessage' => 'Não existe suporte livre para a área de atendimento.'
+            ]);
+    }
+
+    public function test_associate_by_support()
+    {
+        $support = Support::factory()->create(['area_atuacao' => 'contabilidade']);
+        $user = $support->user;
+        //$user = User::factory()->create(['tipo_funcionario' => 'suporte']);
+        $token = auth()->login($user);
+        //$support = Support::factory()->create(['area_atuacao' => 'contabilidade']);
+        $contact = Contact::factory()->create(['area_atendimento' => 'contabilidade']);
+        $service = Service::factory()->create(['contact_id' => $contact->id]);
+        $this->withHeaders(["Authorization" => "Bearer {$token}"])
+            ->mutation('associateService', ['service_id' => $service->id], ['id'])
+            ->assertJsonFragment([
+                'data' => [
+                    'associateService' => [
+                        'id' => $service->id,                       
+                    ],
+                ],
             ]);
     }
 

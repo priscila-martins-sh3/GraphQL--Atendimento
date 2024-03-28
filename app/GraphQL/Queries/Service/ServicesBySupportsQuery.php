@@ -28,7 +28,7 @@ class ServicesBySupportsQuery extends Query
 
     protected $attributes = [
         'name' => 'service/ServicesBySupports',
-        'description' => 'Retorna os serviços do dia de acordo com o suporte'
+        'description' => 'Retorna os serviços do dia de acordo com o id do suporte'
     ];
 
     public function type(): Type

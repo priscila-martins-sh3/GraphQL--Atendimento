@@ -28,7 +28,7 @@ class ServicesByClientQuery extends Query
 
     protected $attributes = [
         'name' => 'service/ServiceNotFinished',
-        'description' => 'Retorna os serviços  do dia'
+        'description' => 'Retorna os serviços do dia de acordo com o id do contato '
     ];
 
     public function type(): Type

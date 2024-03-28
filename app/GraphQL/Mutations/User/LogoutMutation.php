@@ -31,20 +31,18 @@ class LogoutMutation extends Mutation
 
     public function type(): Type
     {
-        return Type::nonNull(Type::string());
+        return Type::boolean();
     }
 
     public function args(): array
     {
-        return [
-
-        ];
+        return [];
     }
 
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
     {
         JWTAuth::parseToken()->invalidate();
 
-        return 'O usuário foi desconectado.';
+        return true;
     }
 }

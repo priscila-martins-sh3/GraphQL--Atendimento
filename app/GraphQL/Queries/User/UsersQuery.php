@@ -18,22 +18,17 @@ class UsersQuery extends Query
 {
     public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
     {
-        $permisao = ['admin'];
         try {
             $this->auth = JWTAuth::parseToken()->authenticate();
         } catch (JWTException $e) {
             return false;
-        }       
-        $funcionario = $this->auth->tipo_funcionario;      
-        if (!$this->auth || !in_array($funcionario, $permisao)) {           
-            return false;
-        }  
-        return (bool) $this->auth;        
+        }
+        return (bool) $this->auth;
     }
 
     protected $attributes = [
         'name' => 'user/UsersQuery',
-        'description' => 'A query'
+        'description' => 'Retorna todos os usuários'
     ];
 
     public function type(): Type

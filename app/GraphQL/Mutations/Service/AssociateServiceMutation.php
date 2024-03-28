@@ -20,17 +20,17 @@ class AssociateServiceMutation extends Mutation
 {
     public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
     {
-        $permisao = ['admin', 'recepcionista'];
+        $permisao = ['admin', 'recepcionista', 'suporte'];
         try {
             $this->auth = JWTAuth::parseToken()->authenticate();
         } catch (JWTException $e) {
             return false;
-        }       
-        $funcionario = $this->auth->tipo_funcionario;      
-        if (!$this->auth || !in_array($funcionario, $permisao)) {           
+        }
+        $funcionario = $this->auth->tipo_funcionario;
+        if (!$this->auth || !in_array($funcionario, $permisao)) {
             return false;
-        }  
-        return (bool) $this->auth;        
+        }
+        return (bool) $this->auth;
     }
 
     protected $attributes = [
@@ -63,31 +63,53 @@ class AssociateServiceMutation extends Mutation
 
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
     {
+        $user = auth()->user();
         $serviceId = $args['service_id'];
         $service = Service::findOrFail($serviceId);
         $contact = $service->contact;
 
-        $support = Support::where('area_atuacao', $contact->area_atendimento)
-            ->where('livre', true)
-            ->first();
+        if ($user->tipo_funcionario != 'suporte') {
 
-        if ($support === null) {
-            throw new \Exception('Não existe suporte livre para a área de atendimento.');
-        }
+            $support = Support::where('area_atuacao', $contact->area_atendimento)
+                ->where('livre', true)
+                ->first();
 
-        if ($service->support_id === null) {
-            $service->update(['support_id' => $support->id]);
+            if ($support === null) {
+                throw new \Exception('Não existe suporte livre para a área de atendimento.');
+            }
 
-            $supports = $support->user->supports;
-            foreach ($supports as $support) {               
-                $support->livre = false;                
-                $support->save();                   
-        }
-            
+            if ($service->support_id === null) {
+                $service->update(['support_id' => $support->id]);
+
+                $supports = $support->user->supports;
+                foreach ($supports as $support) {
+                    $support->livre = false;
+                    $support->save();
+                }
+            } else {
+                throw new \Exception('Serviço já tem suporte.');
+            }
+            return $service;
+
         } else {
-            throw new \Exception('Serviço já tem suporte.');
+
+            $supports = $user->supports;
+            $sameSupport = $supports->first(function ($support) use ($contact) {
+                return $support->area_atuacao === $contact->area_atendimento;
+            });
+            
+            if ($sameSupport && $service->support_id === null && $sameSupport->livre === true) {
+               
+                $service->update(['support_id' => $sameSupport->id]);
+
+                foreach ($supports as $support) {
+                    $support->livre = false;
+                    $support->save();
+                }
+            } else {
+                throw new \Exception("Serviço já tem suporte ou mais");
+            }
+            return $service;
         }
-        return $service;
     }
-} 
-    
+}

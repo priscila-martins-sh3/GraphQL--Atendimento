@@ -78,6 +78,8 @@ return [
             'query' => [
                 //user
                 'users' => \App\GraphQL\Queries\User\UsersQuery::class,
+                'user' => \App\GraphQL\Queries\User\UserQuery::class,
+                'supports' => \App\GraphQL\Queries\User\SupportsQuery::class,
                 //Contact
                 'contacts' => \App\GraphQL\Queries\Contact\ContactsQuery::class,
                 'contact' => \App\GraphQL\Queries\Contact\ContactQuery::class,

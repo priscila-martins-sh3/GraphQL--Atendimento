@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\GraphQL\Queries\Service;
+namespace App\GraphQL\Queries\User;
 
-use App\Models\Service;
+use App\Models\User;
 use Closure;
-
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Facades\GraphQL;
@@ -15,7 +14,7 @@ use Rebing\GraphQL\Support\SelectFields;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class ServicesByTypeQuery extends Query
+class SupportsQuery extends Query
 {
     public function authorize($root, array $args, $ctx, ?ResolveInfo $resolveInfo = null, ?Closure $getSelectFields = null): bool
     {
@@ -28,29 +27,18 @@ class ServicesByTypeQuery extends Query
     }
 
     protected $attributes = [
-        'name' => 'service/ServicesByType',
-        'description' => 'Retorna os serviços do dia de acordo com o tipo de atendimento'
+        'name' => 'user/Supports',
+        'description' => 'Retorna todos os suportes'
     ];
 
     public function type(): Type
     {
-        return Type::listOf(GraphQL::type('Service'));
+        return Type::listOf(GraphQL::type('User'));
     }
 
     public function args(): array
     {
-        return [
-            'data' => [
-                'name' => 'data',
-                'description' => 'Data da busca (formato: YYYY-MM-DD)',
-                'type' => Type::nonNull(Type::string()),
-            ],
-            'tipo_servico' => [
-                'name' => 'tipo_servico',
-                'description' => 'O tipo de servico buscado',
-                'type' => Type::nonNull(Type::string()),
-            ],
-        ];
+        return [];
     }
 
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, SelectFields $selectFields)
@@ -58,11 +46,9 @@ class ServicesByTypeQuery extends Query
         $select = $selectFields->getSelect();
         $with = $selectFields->getRelations();
 
-        $query = Service::whereDate('created_at', $args['data'])
-            ->where('tipo_servico', $args['tipo_servico'])
-            ->select($select)->with($with)
-            ->get();
+        $services = User::where('tipo_funcionario', 'suporte')
+            ->select($select)->with($with)->get();
 
-        return $query;
+        return $services;
     }
 }
