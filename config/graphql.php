@@ -83,7 +83,7 @@ return [
                 //Contact
                 'contacts' => \App\GraphQL\Queries\Contact\ContactsQuery::class,
                 'contact' => \App\GraphQL\Queries\Contact\ContactQuery::class,
-                //Services
+                //Service
                 'services' => \App\GraphQL\Queries\Service\ServicesQuery::class,
                 'service' => \App\GraphQL\Queries\Service\ServiceQuery::class,
                 'client' => \App\GraphQL\Queries\Service\ServicesByClientQuery::class,
@@ -91,6 +91,8 @@ return [
                 'area' => \App\GraphQL\Queries\Service\ServicesByAreaQuery::class,
                 'type' => \App\GraphQL\Queries\Service\ServicesByTypeQuery::class,
                 'notFinished' => \App\GraphQL\Queries\Service\ServicesNotFinishedQuery::class,
+                //Report
+                'supportReport' => \App\GraphQL\Queries\Report\SupportReportQuery::class,
             ],
             'mutation' => [
                 //User
@@ -116,6 +118,8 @@ return [
                 'Support' => \App\GraphQL\Types\SupportType::class,        
                 'Contact' => \App\GraphQL\Types\ContactType::class,
                 'Service' => \App\GraphQL\Types\ServiceType::class,
+                'ReportSupport' => \App\GraphQL\Types\ReportSupportType::class,
+                'ServiceTypeCount' => \App\GraphQL\Types\ServiceTypeCountType::class,
             ],
 
             // Laravel HTTP middleware
