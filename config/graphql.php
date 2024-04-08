@@ -118,8 +118,8 @@ return [
                 'Support' => \App\GraphQL\Types\SupportType::class,        
                 'Contact' => \App\GraphQL\Types\ContactType::class,
                 'Service' => \App\GraphQL\Types\ServiceType::class,
-                'ReportSupport' => \App\GraphQL\Types\ReportSupportType::class,
-                'ServiceTypeCount' => \App\GraphQL\Types\ServiceTypeCountType::class,
+                'SupportReport' => \App\GraphQL\Types\SupportReportType::class,
+                'CountService' => \App\GraphQL\Types\CountServiceType::class,
             ],
 
             // Laravel HTTP middleware

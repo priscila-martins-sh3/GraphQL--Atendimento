@@ -8,10 +8,10 @@ use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type as GraphQLType;
 
-class ReportSupportType extends GraphQLType
+class SupportReportType extends GraphQLType
 {
     protected $attributes = [
-        'name' => 'ReportSupport',
+        'name' => 'SupportReport',
         'description' => 'Tipo para o relatório de suporte'
     ];
 
@@ -31,31 +31,19 @@ class ReportSupportType extends GraphQLType
                 'description' => 'Número de serviços encerrados pelo suporte',
             ],
             'service_atual' => [
-                'type' => GraphQL::type('Service'),
-                'description' => 'Serviço atualmente atribuído ao suporte',
+                'type' => Type::int(),
+                'description' => 'ID do Serviço atualmente atribuído ao suporte',
             ],
             'services_tipo' => [
-                'type' => Type::listOf(GraphQL::type('ServiceTypeCount')),
+                'type' => Type::listOf(GraphQL::type('CountService')),
                 'description' => 'Lista do tipos de serviços e sua quantidade',
-                'resolve' => function ($root, $args) {
-                    // Aqui, você pode acessar os dados de $root que contém os dados do relatório de suporte
-                    // Vamos supor que $root contém uma chave 'services_tipo' que contém os dados de $servicesPorTipo
-                    // então, você pode fazer algo como:
-                    $servicesPorTipo = $root['services_tipo'];
-            
-                    // Agora, você precisa transformar os dados de $servicesPorTipo em um formato compatível com o tipo ServiceTypeCountType
-                    // Aqui, vou assumir que $servicesPorTipo é uma coleção de objetos como discutido anteriormente
-            
-                    // Mapeie os dados para o formato esperado pelo tipo ServiceTypeCountType
-                    $serviceTypeCounts = [];
-                    foreach ($servicesPorTipo as $service) {
-                        $serviceTypeCounts[] = [
-                            'serviceType' => $service->tipo_servico,
-                            'quantity' => $service->total,
-                        ];
+                'resolve' => function ($root, $args) {                    
+                    
+                    if (isset($root['services_tipo']) && is_array($root['services_tipo'])) {
+                        return $root['services_tipo'];
                     }
-            
-                    return $serviceTypeCounts;
+                    
+                    return null;
                 },
             ],
             'cliente_mais_atendido' => [

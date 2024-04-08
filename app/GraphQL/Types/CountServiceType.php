@@ -8,10 +8,10 @@ use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use Rebing\GraphQL\Support\Type as GraphQLType;
 
-class ServiceTypeCountType extends GraphQLType
+class CountServiceType extends GraphQLType
 {
     protected $attributes = [
-        'name' => 'ServiceTypeCount',
+        'name' => 'CountService',
         'description' => 'Tipo para contabilizar o tipo de serviço'
     ];
 
